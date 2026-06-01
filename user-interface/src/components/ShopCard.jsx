@@ -6,24 +6,29 @@ export default function ShopCard({ shop }) {
   return (
     <motion.div whileHover={{ y: -5 }} className="h-full">
       <Link
-        to={`/shop/${shop._id}`}
-        className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-lg"
+        to={`/shop/${shop.slug}`}
+        className="surface flex h-full flex-col p-5 transition hover:shadow-lg"
       >
         <div className="mb-3 flex items-center gap-3">
-          <div className="rounded-xl bg-cyan-100 p-2 text-cyan-700">
+          <div className="rounded-xl bg-base p-2 text-accent">
             <Store size={20} />
           </div>
-          <h3 className="line-clamp-1 text-lg font-semibold text-slate-900">{shop.shopName}</h3>
+          <h3 className="line-clamp-1 text-lg font-semibold text-primary">{shop.shopName}</h3>
         </div>
 
-        <p className="flex items-center gap-1 text-sm text-slate-500">
+        <p className="flex items-center gap-1 text-sm text-muted">
           <MapPin size={14} />
           {shop.location}
         </p>
 
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-600">{shop.description || "No description available."}</p>
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">{shop.description || "No description available."}</p>
 
-        <span className="mt-5 text-sm font-semibold text-cyan-700">View products</span>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-app px-2.5 py-1 text-muted">{shop.category?.replaceAll("_", " ") || "shop"}</span>
+          <span className="rounded-full border border-app px-2.5 py-1 text-muted">Rating {Number(shop.rating || 0).toFixed(1)}</span>
+        </div>
+
+        <span className="mt-5 text-sm font-semibold text-accent">View products</span>
       </Link>
     </motion.div>
   );

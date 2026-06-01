@@ -16,10 +16,40 @@ const sendError = (res, error, fallbackStatus = 500) => {
   return res.status(statusCode).json({ message: error.message || "Server error" });
 };
 
+const parseBoolean = (value) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return undefined;
+};
+
+const parsePayload = (rawBody = {}) => {
+  const parsed = { ...rawBody };
+  if (rawBody.conditions && typeof rawBody.conditions === "string") {
+    try {
+      parsed.conditions = JSON.parse(rawBody.conditions);
+    } catch {
+      parsed.conditions = {};
+    }
+  }
+  if (rawBody.discountValue !== undefined) {
+    parsed.discountValue = Number(rawBody.discountValue);
+  }
+  if (rawBody.isActive !== undefined) {
+    parsed.isActive = parseBoolean(rawBody.isActive);
+  }
+  if (rawBody.startDate) parsed.startDate = new Date(rawBody.startDate);
+  if (rawBody.endDate) parsed.endDate = new Date(rawBody.endDate);
+  return parsed;
+};
+
 export const createBanner = async (req, res) => {
-  const { error } = createBannerSchema.validate(req.body);
+  const payload = parsePayload(req.body);
+  const { error } = createBannerSchema.validate(payload);
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
+  }
+  if (new Date(payload.startDate) > new Date(payload.endDate)) {
+    return res.status(400).json({ message: "startDate must be earlier than endDate" });
   }
 
   if (!req.file?.path) {
@@ -29,7 +59,7 @@ export const createBanner = async (req, res) => {
   try {
     const banner = await createBannerForOwner({
       ownerId: req.user._id,
-      payload: req.body,
+      payload,
       imagePath: req.file.path,
     });
     return res.status(201).json(banner);
@@ -60,20 +90,24 @@ export const getMyBanners = async (req, res) => {
 };
 
 export const updateBanner = async (req, res) => {
-  const hasBodyFields = Object.keys(req.body || {}).length > 0;
-  const { error } = updateBannerSchema.validate(req.body);
+  const payload = parsePayload(req.body);
+  const hasBodyFields = Object.keys(payload || {}).length > 0;
+  const { error } = updateBannerSchema.validate(payload);
   if (error && !req.file?.path) {
     return res.status(400).json({ message: error.details[0].message });
   }
   if (!hasBodyFields && !req.file?.path) {
     return res.status(400).json({ message: "At least one field or image is required to update banner" });
   }
+  if (payload.startDate && payload.endDate && new Date(payload.startDate) > new Date(payload.endDate)) {
+    return res.status(400).json({ message: "startDate must be earlier than endDate" });
+  }
 
   try {
     const banner = await updateBannerForOwner({
       ownerId: req.user._id,
       bannerId: req.params.id,
-      payload: req.body,
+      payload,
       imagePath: req.file?.path,
     });
     return res.json(banner);

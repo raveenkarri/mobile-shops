@@ -13,9 +13,11 @@ const productSchema = new mongoose.Schema(
       enum: ["mobiles", "earphones", "accessories"],
       required: true,
     },
+    description: { type: String, default: "" },
     price: { type: Number, required: true },
     images: [{ type: String }],
     stock: { type: Number, default: 0 },
+    popularity: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

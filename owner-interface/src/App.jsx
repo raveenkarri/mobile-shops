@@ -1,35 +1,34 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { AnimatePresence } from "framer-motion";
-import { useAuthStore } from "./store/authStore";
+import { Toaster } from "react-hot-toast";
 import Layout from "./components/Layout";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import Products from "./pages/Products";
-import ShopSetup from "./pages/ShopSetup";
-import UsersChat from "./pages/UsersChat";
-import Chat from "./pages/Chat";
-import Banners from "./pages/Banners";
+import { useAuthStore } from "./store/authStore";
+import { ThemeProvider } from "./theme/ThemeProvider";
+
+const AuthEntry = lazy(() => import("./pages/AuthEntry"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Products = lazy(() => import("./pages/Products"));
+const ShopSetup = lazy(() => import("./pages/ShopSetup"));
+const UsersChat = lazy(() => import("./pages/UsersChat"));
+const Chat = lazy(() => import("./pages/Chat"));
+const Banners = lazy(() => import("./pages/Banners"));
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400" />
+    <div className="grid min-h-screen place-items-center bg-base text-primary">
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-app border-t-accent" />
     </div>
   );
 }
 
 function PrivateRoute({ children }) {
   const { user, isLoading } = useAuthStore();
+  const location = useLocation();
   if (isLoading) return <LoadingScreen />;
-  return user ? children : <Navigate to="/login" replace />;
-}
-
-function OwnerRoute({ children }) {
-  const { user } = useAuthStore();
-  return user?.role === "OWNER" ? children : <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (user.role !== "OWNER") return <Navigate to="/login" replace />;
+  return children;
 }
 
 function AnimatedRoutes() {
@@ -37,27 +36,27 @@ function AnimatedRoutes() {
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <OwnerRoute>
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/login" element={<AuthEntry />} />
+          <Route path="/register" element={<AuthEntry />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
                 <Layout />
-              </OwnerRoute>
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="shop-setup" element={<ShopSetup />} />
-          <Route path="products" element={<Products />} />
-          <Route path="banners" element={<Banners />} />
-          <Route path="chats" element={<UsersChat />} />
-          <Route path="chat/:chatId" element={<Chat />} />
-        </Route>
-      </Routes>
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="shop-setup" element={<ShopSetup />} />
+            <Route path="products" element={<Products />} />
+            <Route path="banners" element={<Banners />} />
+            <Route path="chats" element={<UsersChat />} />
+            <Route path="chat/:chatId" element={<Chat />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 }
@@ -70,19 +69,12 @@ function App() {
   }, [checkAuth]);
 
   return (
-    <BrowserRouter>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: {
-            background: "#0f172a",
-            color: "#e2e8f0",
-            border: "1px solid #1e293b",
-          },
-        }}
-      />
-      <AnimatedRoutes />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Toaster position="top-right" />
+        <AnimatedRoutes />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

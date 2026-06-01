@@ -11,7 +11,7 @@ import { useAuthStore } from "../store/authStore";
 import apiClient from "../lib/apiClient";
 
 export default function ShopDetails() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const [shop, setShop] = useState(null);
@@ -23,10 +23,11 @@ export default function ShopDetails() {
     const fetchPageData = async () => {
       setLoading(true);
       try {
-        const [shopRes, productRes, bannerRes] = await Promise.all([
-          apiClient.get(`/shops/${id}`),
-          apiClient.get(`/products/shop/${id}`),
-          apiClient.get(`/banners/shop/${id}`),
+        const shopRes = await apiClient.get(`/shops/slug/${slug}`);
+        const shopId = shopRes.data._id;
+        const [productRes, bannerRes] = await Promise.all([
+          apiClient.get(`/products/shop/${shopId}`),
+          apiClient.get(`/banners/shop/${shopId}`),
         ]);
 
         setShop(shopRes.data);
@@ -40,7 +41,7 @@ export default function ShopDetails() {
     };
 
     fetchPageData();
-  }, [id]);
+  }, [slug]);
 
   const startChat = async () => {
     if (!user) {
@@ -50,7 +51,7 @@ export default function ShopDetails() {
     }
 
     try {
-      const { data } = await apiClient.post("/chats", { shopId: id });
+      const { data } = await apiClient.post("/chats", { shopId: shop._id });
       navigate(`/chat/${data._id}`);
     } catch {
       toast.error("Failed to start chat");
@@ -76,14 +77,18 @@ export default function ShopDetails() {
 
   return (
     <PageTransition className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">{shop.shopName}</h1>
-        <p className="mt-1 text-sm text-slate-500">{shop.location}</p>
-        <p className="mt-3 max-w-4xl text-sm leading-relaxed text-slate-600">{shop.description || "No description available"}</p>
+      <div className="surface p-6">
+        <h1 className="text-3xl font-bold text-primary">{shop.shopName}</h1>
+        <p className="mt-1 text-sm text-muted">{shop.location}</p>
+        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-app px-2.5 py-1 text-muted">{shop.category?.replaceAll("_", " ")}</span>
+          <span className="rounded-full border border-app px-2.5 py-1 text-muted">Rating {Number(shop.rating || 0).toFixed(1)}</span>
+        </div>
+        <p className="mt-3 max-w-4xl text-sm leading-relaxed text-muted">{shop.description || "No description available"}</p>
         {user ? (
           <button
             onClick={startChat}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
             <MessageCircle size={16} />
             Chat with owner

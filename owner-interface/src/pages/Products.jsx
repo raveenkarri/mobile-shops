@@ -45,10 +45,10 @@ export default function Products() {
 
   return (
     <PageTransition className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="surface flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Product Catalog</h2>
-          <p className="mt-1 text-sm text-slate-600">Manage pricing, inventory and media from one place.</p>
+          <h2 className="text-2xl font-bold text-primary">Product Catalog</h2>
+          <p className="mt-1 text-sm text-muted">Manage pricing, inventory and media from one place.</p>
         </div>
         <Button
           onClick={() => {
@@ -91,24 +91,27 @@ export default function Products() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04 }}
               whileHover={{ y: -4 }}
-              className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+              className="surface overflow-hidden"
             >
-              <div className="relative h-48 bg-slate-100">
+              <div className="relative h-48 bg-base">
                 {product.images?.[0] ? (
                   <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="grid h-full place-items-center text-sm text-slate-500">No preview image</div>
+                  <div className="grid h-full place-items-center text-sm text-muted">No preview image</div>
                 )}
               </div>
               <div className="space-y-2 p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-600">
+                  <h3 className="text-lg font-semibold text-primary">{product.name}</h3>
+                  <span className="rounded-full bg-base px-2.5 py-1 text-xs font-medium capitalize text-muted">
                     {product.category}
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-cyan-700">${Number(product.price).toFixed(2)}</p>
-                <p className="text-sm text-slate-500">Stock: {product.stock}</p>
+                <p className="text-3xl font-bold text-accent">${Number(product.price).toFixed(2)}</p>
+                <p className="text-sm text-muted">Stock: {product.stock}</p>
+                {product.pricing?.hasOffer ? (
+                  <p className="text-xs font-semibold text-emerald-500">{product.pricing.offer?.badgeText}</p>
+                ) : null}
                 <div className="mt-4 flex gap-2">
                   <Button
                     variant="subtle"

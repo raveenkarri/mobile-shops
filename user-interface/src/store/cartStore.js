@@ -42,7 +42,10 @@ export const useCartStore = create(
       clearCart: () => set({ items: [] }),
       
       getTotal: () => {
-        return get().items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+        return get().items.reduce((total, item) => {
+          const price = item.product.pricing?.discountedPrice ?? item.product.price;
+          return total + price * item.quantity;
+        }, 0);
       },
     }),
     { name: 'cart-storage' }

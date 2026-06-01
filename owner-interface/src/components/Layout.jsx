@@ -1,13 +1,15 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import { Menu, LogOut } from "lucide-react";
+import { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import Sidebar from "./Sidebar";
 import Button from "./ui/Button";
-import { LogOut } from "lucide-react";
-import { motion } from "framer-motion";
+import ThemeToggle from "./ui/ThemeToggle";
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -15,29 +17,40 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top,_#cffafe_0%,_#f8fafc_35%,_#f8fafc_100%)] text-slate-900">
-      <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 px-6 py-4 backdrop-blur-xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Control Panel</p>
-              <h1 className="text-xl font-bold">Welcome, {user?.name}</h1>
+    <div className="app-shell">
+      <div className="flex min-h-screen">
+        <Sidebar isMobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+        <div className="flex min-h-screen flex-1 flex-col">
+          <header className="sticky top-0 z-30 border-b border-app bg-surface px-4 py-4 backdrop-blur-xl md:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="inline-flex rounded-xl border border-app p-2 text-muted lg:hidden"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu size={18} />
+                </button>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Control Panel</p>
+                  <h1 className="text-xl font-bold text-primary">Welcome, {user?.name}</h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button variant="subtle" onClick={handleLogout}>
+                  <LogOut size={16} />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
+              </div>
             </div>
-            <Button variant="subtle" onClick={handleLogout} className="border border-slate-200 bg-white">
-              <LogOut size={16} />
-              Logout
-            </Button>
-          </div>
-        </header>
-        <motion.main
-          className="flex-1 p-4 md:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.22 }}
-        >
-          <Outlet />
-        </motion.main>
+          </header>
+
+          <main className="flex-1 p-4 md:p-6">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

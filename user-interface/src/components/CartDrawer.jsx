@@ -16,32 +16,32 @@ export default function CartDrawer({ isOpen, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: 420 }}
             transition={{ duration: 0.3 }}
-            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
+            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-surface shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 p-4">
-              <h2 className="text-xl font-bold text-slate-900">Cart</h2>
-              <button onClick={onClose} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
+            <div className="flex items-center justify-between border-b border-app p-4">
+              <h2 className="text-xl font-bold text-primary">Cart</h2>
+              <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-base hover:text-primary">
                 <X size={20} />
               </button>
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
               {items.length === 0 ? (
-                <p className="py-12 text-center text-sm text-slate-500">Your cart is empty</p>
+                <p className="py-12 text-center text-sm text-muted">Your cart is empty</p>
               ) : (
                 items.map((item) => (
-                  <div key={item.product._id} className="flex gap-3 rounded-2xl border border-slate-200 p-3">
+                  <div key={item.product._id} className="flex gap-3 rounded-2xl border border-app p-3">
                     {item.product.images?.[0] ? (
                       <img src={item.product.images[0]} alt={item.product.name} className="h-20 w-20 rounded-xl object-cover" />
                     ) : null}
                     <div className="min-w-0 flex-1">
-                      <h3 className="line-clamp-1 font-semibold text-slate-900">{item.product.name}</h3>
-                      <p className="text-sm text-cyan-700">${Number(item.product.price).toFixed(2)}</p>
+                      <h3 className="line-clamp-1 font-semibold text-primary">{item.product.name}</h3>
+                      <p className="text-sm text-accent">₹{Number(item.product.pricing?.discountedPrice ?? item.product.price).toFixed(2)}</p>
                       <div className="mt-2 flex items-center gap-2">
                         <select
                           value={item.quantity}
                           onChange={(event) => updateQuantity(item.product._id, Number(event.target.value))}
-                          className="rounded-lg border border-slate-200 px-2 py-1 text-sm"
+                          className="rounded-lg border border-app px-2 py-1 text-sm bg-surface"
                         >
                           {[...Array(10).keys()].map((i) => (
                             <option key={i + 1} value={i + 1}>
@@ -49,7 +49,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                             </option>
                           ))}
                         </select>
-                        <button onClick={() => removeItem(item.product._id)} className="text-rose-600 hover:text-rose-500">
+                        <button onClick={() => removeItem(item.product._id)} className="text-rose-500 hover:text-rose-400">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -60,15 +60,15 @@ export default function CartDrawer({ isOpen, onClose }) {
             </div>
 
             {items.length > 0 ? (
-              <div className="space-y-3 border-t border-slate-200 p-4">
-                <div className="flex items-center justify-between text-lg font-bold text-slate-900">
+              <div className="space-y-3 border-t border-app p-4">
+                <div className="flex items-center justify-between text-lg font-bold text-primary">
                   <span>Total</span>
-                  <span>${getTotal().toFixed(2)}</span>
+                  <span>₹{getTotal().toFixed(2)}</span>
                 </div>
                 <Link
                   to="/cart"
                   onClick={onClose}
-                  className="block rounded-xl bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-slate-800"
+                  className="block rounded-xl bg-accent px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90"
                 >
                   View cart
                 </Link>

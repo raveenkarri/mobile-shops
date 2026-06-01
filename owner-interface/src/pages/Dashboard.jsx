@@ -46,10 +46,10 @@ export default function Dashboard() {
 
   return (
     <PageTransition className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
-        <p className="text-sm uppercase tracking-[0.16em] text-cyan-700">Overview</p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-900">Scale faster, {user?.name?.split(" ")[0] || "Owner"}</h2>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">Your storefront is now optimized for richer merchandising and real-time customer engagement.</p>
+      <div className="surface p-6">
+        <p className="text-sm uppercase tracking-[0.16em] text-muted">Overview</p>
+        <h2 className="mt-2 text-3xl font-bold text-primary">Scale faster, {user?.name?.split(" ")[0] || "Owner"}</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">Your storefront is now optimized for richer merchandising and real-time customer engagement.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -61,12 +61,12 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+                className="surface p-5"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-slate-500">{card.title}</p>
-                    <p className="mt-2 text-4xl font-bold text-slate-900">{card.value}</p>
+                    <p className="text-sm text-muted">{card.title}</p>
+                    <p className="mt-2 text-4xl font-bold text-primary">{card.value}</p>
                   </div>
                   <div className={`rounded-2xl bg-gradient-to-br p-3 text-white shadow ${card.tone}`}>
                     <card.icon size={20} />

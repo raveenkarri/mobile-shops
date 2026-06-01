@@ -26,9 +26,9 @@ export default function UsersChat() {
 
   return (
     <PageTransition className="space-y-4">
-      <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-slate-900">Customer conversations</h2>
-        <p className="mt-1 text-sm text-slate-600">Respond quickly to improve conversion and trust.</p>
+      <div className="surface p-6">
+        <h2 className="text-2xl font-bold text-primary">Customer conversations</h2>
+        <p className="mt-1 text-sm text-muted">Respond quickly to improve conversion and trust.</p>
       </div>
 
       {loading ? (
@@ -53,14 +53,14 @@ export default function UsersChat() {
             >
               <Link
                 to={`/chat/${chat._id}`}
-                className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-cyan-300 hover:shadow-md"
+                className="group flex items-center justify-between rounded-2xl border border-app bg-surface p-4 transition hover:border-accent hover:shadow-md"
               >
                 <div>
-                  <p className="font-semibold text-slate-900">{chat.userId?.name || "Customer"}</p>
-                  <p className="text-sm text-slate-500">Shop: {chat.shopId?.shopName || "Unknown"}</p>
-                  <p className="mt-1 text-sm text-slate-600">{chat.lastMessage || "No messages yet"}</p>
+                  <p className="font-semibold text-primary">{chat.userId?.name || "Customer"}</p>
+                  <p className="text-sm text-muted">Shop: {chat.shopId?.shopName || "Unknown"}</p>
+                  <p className="mt-1 text-sm text-muted">{chat.lastMessage || "No messages yet"}</p>
                 </div>
-                <MessageCircle className="text-cyan-600 transition group-hover:translate-x-1" />
+                <MessageCircle className="text-accent transition group-hover:translate-x-1" />
               </Link>
             </motion.div>
           ))}

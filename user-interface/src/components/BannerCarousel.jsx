@@ -2,17 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+const buildBadge = (banner) => {
+  if (banner.type === "bogo") return "Buy 1 Get 1";
+  if (banner.type === "combo_offer" && banner.freeProduct) return `Free ${banner.freeProduct}`;
+  if (banner.discountType === "percentage") return `${banner.discountValue}% OFF`;
+  if (banner.discountType === "fixed") return `Save ₹${banner.discountValue}`;
+  return banner.title;
+};
+
 export default function BannerCarousel({ banners = [] }) {
   const activeBanners = useMemo(() => banners.filter((banner) => banner.isActive !== false), [banners]);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (activeBanners.length <= 1) return;
-
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % activeBanners.length);
     }, 5000);
-
     return () => clearInterval(timer);
   }, [activeBanners.length]);
 
@@ -20,7 +26,7 @@ export default function BannerCarousel({ banners = [] }) {
     setIndex(0);
   }, [activeBanners.length]);
 
-  if (activeBanners.length === 0) return null;
+  if (!activeBanners.length) return null;
 
   const current = activeBanners[index];
 
@@ -28,27 +34,33 @@ export default function BannerCarousel({ banners = [] }) {
   const goNext = () => setIndex((prev) => (prev + 1) % activeBanners.length);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-xl">
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900/75 to-transparent" />
+    <div className="surface relative overflow-hidden p-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={current._id || index}
-          initial={{ opacity: 0.35, x: 12 }}
+          initial={{ opacity: 0.2, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0.2, x: -12 }}
+          exit={{ opacity: 0.2, x: -20 }}
           transition={{ duration: 0.35 }}
-          className="relative h-56 w-full sm:h-72"
+          className="relative h-60 w-full sm:h-80"
         >
           <img src={current.image} alt={current.title} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-900/35 to-transparent" />
-          <div className="absolute bottom-0 left-0 z-10 p-5 sm:p-8">
-            <h3 className="text-2xl font-bold text-white sm:text-3xl">{current.title}</h3>
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 z-10 max-w-xl p-5 sm:p-8">
+            <p className="inline-flex rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">{buildBadge(current)}</p>
+            <h3 className="mt-3 text-2xl font-bold text-white sm:text-4xl">{current.title}</h3>
+            {current.description ? <p className="mt-2 text-sm text-slate-200">{current.description}</p> : null}
+            {current.conditions?.minPurchaseAmount > 0 ? (
+              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.1em] text-cyan-200">
+                On orders above ₹{current.conditions.minPurchaseAmount}
+              </p>
+            ) : null}
             {current.link ? (
               <a
                 href={current.link}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200"
+                className="mt-4 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200"
               >
                 Explore Offer
               </a>

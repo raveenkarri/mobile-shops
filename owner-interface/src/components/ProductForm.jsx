@@ -8,6 +8,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: product?.name || "",
     category: product?.category || "mobiles",
+    description: product?.description || "",
     price: product?.price || "",
     stock: product?.stock || "",
   });
@@ -23,6 +24,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
     const payload = new FormData();
     payload.append("name", formData.name.trim());
     payload.append("category", formData.category);
+    payload.append("description", formData.description.trim());
     payload.append("price", formData.price);
     payload.append("stock", formData.stock);
     images.forEach((image) => payload.append("images", image));
@@ -51,14 +53,14 @@ export default function ProductForm({ product, onClose, onSuccess }) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 p-4"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.97 }}
-          className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl"
-        >
-          <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
-          <p className="mt-1 text-sm text-slate-600">Upload crisp images and keep metadata clean for search relevance.</p>
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.97 }}
+        className="w-full max-w-xl rounded-3xl border border-app bg-surface p-6 shadow-2xl"
+      >
+          <h2 className="text-2xl font-bold text-primary">{title}</h2>
+          <p className="mt-1 text-sm text-muted">Upload crisp images and keep metadata clean for search relevance.</p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <input
@@ -67,14 +69,14 @@ export default function ProductForm({ product, onClose, onSuccess }) {
               placeholder="Product name"
               value={formData.name}
               onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+              className="input"
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <select
                 value={formData.category}
                 onChange={(event) => setFormData((prev) => ({ ...prev, category: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm capitalize focus:border-cyan-400 focus:outline-none"
+                className="input capitalize"
               >
                 <option value="mobiles">Mobiles</option>
                 <option value="earphones">Earphones</option>
@@ -88,9 +90,17 @@ export default function ProductForm({ product, onClose, onSuccess }) {
                 placeholder="Price"
                 value={formData.price}
                 onChange={(event) => setFormData((prev) => ({ ...prev, price: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+                className="input"
               />
             </div>
+
+            <textarea
+              rows="3"
+              placeholder="Description"
+              value={formData.description}
+              onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+              className="input"
+            />
 
             <input
               type="number"
@@ -99,7 +109,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
               placeholder="Stock"
               value={formData.stock}
               onChange={(event) => setFormData((prev) => ({ ...prev, stock: event.target.value }))}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+              className="input"
             />
 
             <input
@@ -107,7 +117,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
               multiple
               accept="image/*"
               onChange={(event) => setImages(Array.from(event.target.files || []))}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-semibold"
+              className="input"
             />
 
             <div className="flex justify-end gap-3">

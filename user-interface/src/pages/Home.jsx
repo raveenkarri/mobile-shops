@@ -13,6 +13,8 @@ export default function Home() {
   const [banners, setBanners] = useState([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
   const [loading, setLoading] = useState(true);
 
   const debouncedSearch = useDebounce(search, 450);
@@ -39,6 +41,8 @@ export default function Home() {
           params: {
             search: debouncedSearch,
             location: debouncedLocation,
+            category,
+            sortBy,
           },
         });
         setShops(data.shops || []);
@@ -48,36 +52,51 @@ export default function Home() {
     };
 
     fetchShops();
-  }, [debouncedSearch, debouncedLocation]);
+  }, [debouncedSearch, debouncedLocation, category, sortBy]);
 
   return (
     <PageTransition className="space-y-7">
-      <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">Find the best mobile shops near you</h1>
-        <p className="mt-2 text-sm text-slate-600">Browse shops, compare products, and chat directly with owners before buying.</p>
+      <div className="surface p-5">
+        <h1 className="text-3xl font-bold text-primary">Find trusted mobile shops nearby</h1>
+        <p className="mt-2 text-sm text-muted">Search by name, location, keywords, and discover the best offers instantly.</p>
       </div>
 
       <BannerCarousel banners={banners} />
 
-      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-2">
-        <label className="relative block">
-          <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <div className="surface grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
+        <label className="relative block md:col-span-2 xl:col-span-2">
+          <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
-            placeholder="Search by shop name"
+            placeholder="Search by shop, location, or keywords"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-xl border border-slate-200 py-2.5 pl-10 pr-4 text-sm focus:border-cyan-400 focus:outline-none"
+            className="input pl-10"
           />
         </label>
 
         <input
           type="text"
-          placeholder="Filter by location"
+          placeholder="Location filter"
           value={location}
           onChange={(event) => setLocation(event.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-cyan-400 focus:outline-none"
+          className="input"
         />
+
+        <select value={category} onChange={(event) => setCategory(event.target.value)} className="input">
+          <option value="">All categories</option>
+          <option value="mobile_store">Mobile Store</option>
+          <option value="repair_center">Repair Center</option>
+          <option value="multi_brand">Multi Brand</option>
+          <option value="accessories_specialist">Accessories Specialist</option>
+        </select>
+
+        <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="input">
+          <option value="latest">Latest</option>
+          <option value="popularity">Popularity</option>
+          <option value="rating">Rating</option>
+          <option value="name">Name</option>
+        </select>
       </div>
 
       {loading ? (
@@ -87,10 +106,7 @@ export default function Home() {
           ))}
         </div>
       ) : shops.length === 0 ? (
-        <EmptyState
-          title="No shops matched"
-          description="Try a different keyword or location to discover more stores."
-        />
+        <EmptyState title="No shops matched" description="Try different keywords, category, or location filters." />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {shops.map((shop) => (

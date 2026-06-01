@@ -75,19 +75,19 @@ export default function Chat() {
 
   return (
     <PageTransition>
-      <div className="flex h-[calc(100vh-180px)] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-5 py-4">
-          <h3 className="text-lg font-semibold text-slate-900">Live conversation</h3>
+      <div className="flex h-[calc(100vh-180px)] flex-col overflow-hidden rounded-3xl border border-app bg-surface shadow-sm">
+        <div className="border-b border-app px-5 py-4">
+          <h3 className="text-lg font-semibold text-primary">Live conversation</h3>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
+        <div className="flex-1 space-y-3 overflow-y-auto bg-base p-4">
           {messages.map((msg) => (
             <div key={msg._id} className={`flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
                   msg.senderId === user?._id
-                    ? "bg-cyan-600 text-white"
-                    : "border border-slate-200 bg-white text-slate-700"
+                    ? "bg-accent text-white"
+                    : "border border-app bg-surface text-primary"
                 }`}
               >
                 <p>{msg.message}</p>
@@ -95,21 +95,21 @@ export default function Chat() {
               </div>
             </div>
           ))}
-          {typing ? <p className="text-xs italic text-slate-500">Customer is typing...</p> : null}
+          {typing ? <p className="text-xs italic text-muted">Customer is typing...</p> : null}
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={sendMessage} className="border-t border-slate-200 p-3">
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2">
+        <form onSubmit={sendMessage} className="border-t border-app p-3">
+          <div className="flex items-center gap-2 rounded-2xl border border-app bg-surface p-2">
             <input
               type="text"
               value={newMessage}
               onChange={(event) => setNewMessage(event.target.value)}
               onKeyUp={handleTyping}
               placeholder="Type your reply..."
-              className="flex-1 bg-transparent px-2 py-1 text-sm text-slate-700 focus:outline-none"
+              className="flex-1 bg-transparent px-2 py-1 text-sm text-primary focus:outline-none"
             />
-            <button type="submit" className="rounded-xl bg-cyan-600 p-2 text-white hover:bg-cyan-500">
+            <button type="submit" className="rounded-xl bg-accent p-2 text-white hover:opacity-90">
               <Send size={16} />
             </button>
           </div>
