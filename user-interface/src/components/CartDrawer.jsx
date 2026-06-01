@@ -36,12 +36,12 @@ export default function CartDrawer({ isOpen, onClose }) {
                     ) : null}
                     <div className="min-w-0 flex-1">
                       <h3 className="line-clamp-1 font-semibold text-primary">{item.product.name}</h3>
-                      <p className="text-sm text-accent">₹{Number(item.product.pricing?.discountedPrice ?? item.product.price).toFixed(2)}</p>
+                      <p className="text-sm text-accent">{"\u20B9"}{Number(item.product.pricing?.discountedPrice ?? item.product.price).toFixed(2)}</p>
                       <div className="mt-2 flex items-center gap-2">
                         <select
                           value={item.quantity}
                           onChange={(event) => updateQuantity(item.product._id, Number(event.target.value))}
-                          className="rounded-lg border border-app px-2 py-1 text-sm bg-surface"
+                          className="rounded-lg border border-app bg-surface px-2 py-1 text-sm"
                         >
                           {[...Array(10).keys()].map((i) => (
                             <option key={i + 1} value={i + 1}>
@@ -63,7 +63,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               <div className="space-y-3 border-t border-app p-4">
                 <div className="flex items-center justify-between text-lg font-bold text-primary">
                   <span>Total</span>
-                  <span>₹{getTotal().toFixed(2)}</span>
+                  <span>{"\u20B9"}{getTotal().toFixed(2)}</span>
                 </div>
                 <Link
                   to="/cart"

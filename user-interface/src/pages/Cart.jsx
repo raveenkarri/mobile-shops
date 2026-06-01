@@ -13,7 +13,7 @@ export default function Cart() {
         title="Your cart is empty"
         description="Add products from shops to start checkout."
         action={
-          <Link to="/" className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
+          <Link to="/" className="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">
             Continue shopping
           </Link>
         }
@@ -40,7 +40,7 @@ export default function Cart() {
 
               <div className="min-w-0 flex-1">
                 <h3 className="line-clamp-1 font-semibold text-primary">{item.product.name}</h3>
-                <p className="text-sm text-accent">₹{Number(item.product.pricing?.discountedPrice ?? item.product.price).toFixed(2)}</p>
+                <p className="text-sm text-accent">{"\u20B9"}{Number(item.product.pricing?.discountedPrice ?? item.product.price).toFixed(2)}</p>
                 <div className="mt-3 flex items-center gap-2">
                   <select
                     value={item.quantity}
@@ -59,7 +59,7 @@ export default function Cart() {
                 </div>
               </div>
 
-              <p className="text-sm font-semibold text-primary">₹{((item.product.pricing?.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</p>
+              <p className="text-sm font-semibold text-primary">{"\u20B9"}{((item.product.pricing?.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</p>
             </article>
           ))}
         </div>
@@ -70,14 +70,14 @@ export default function Cart() {
             {items.map((item) => (
               <div key={item.product._id} className="flex justify-between gap-3">
                 <span className="line-clamp-1">{item.product.name} x{item.quantity}</span>
-                <span>₹{((item.product.pricing?.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</span>
+                <span>{"\u20B9"}{((item.product.pricing?.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
           <div className="mt-4 border-t border-app pt-4 text-lg font-bold text-primary">
             <div className="flex justify-between">
               <span>Total</span>
-              <span>₹{getTotal().toFixed(2)}</span>
+              <span>{"\u20B9"}{getTotal().toFixed(2)}</span>
             </div>
           </div>
           <button className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">

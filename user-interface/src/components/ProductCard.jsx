@@ -3,7 +3,7 @@ import { ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCartStore } from "../store/cartStore";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onOpenGallery }) {
   const addItem = useCartStore((state) => state.addItem);
   const pricing = product.pricing || {
     originalPrice: Number(product.price || 0),
@@ -19,26 +19,30 @@ export default function ProductCard({ product }) {
 
   return (
     <motion.article whileHover={{ y: -4 }} className="surface overflow-hidden">
-      <div className="h-52 bg-base">
+      <button
+        type="button"
+        onClick={() => onOpenGallery?.(product)}
+        className="block h-52 w-full bg-base text-left transition hover:opacity-95"
+      >
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
         ) : (
           <div className="grid h-full place-items-center text-sm text-muted">No image</div>
         )}
-      </div>
+      </button>
       <div className="space-y-2 p-4">
         <h3 className="line-clamp-1 text-lg font-semibold text-primary">{product.name}</h3>
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted">{product.category}</p>
         {pricing.hasOffer ? (
           <div>
-            <p className="text-2xl font-bold text-accent">₹{Number(pricing.discountedPrice).toFixed(2)}</p>
-            <p className="text-xs text-muted line-through">₹{Number(pricing.originalPrice).toFixed(2)}</p>
+            <p className="text-2xl font-bold text-accent">{"\u20B9"}{Number(pricing.discountedPrice).toFixed(2)}</p>
+            <p className="text-xs text-muted line-through">{"\u20B9"}{Number(pricing.originalPrice).toFixed(2)}</p>
             <p className="mt-1 inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
               {pricing.offer?.badgeText}
             </p>
           </div>
         ) : (
-          <p className="text-2xl font-bold text-accent">₹{Number(product.price).toFixed(2)}</p>
+          <p className="text-2xl font-bold text-accent">{"\u20B9"}{Number(product.price).toFixed(2)}</p>
         )}
         <p className="text-sm text-muted">Stock: {product.stock}</p>
         <button

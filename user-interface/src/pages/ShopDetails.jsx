@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { MessageCircle } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import BannerCarousel from "../components/BannerCarousel";
+import ProductGalleryModal from "../components/ui/ProductGalleryModal";
 import EmptyState from "../components/ui/EmptyState";
 import PageTransition from "../components/ui/PageTransition";
 import Skeleton from "../components/ui/Skeleton";
@@ -18,6 +19,7 @@ export default function ShopDetails() {
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [galleryProduct, setGalleryProduct] = useState(null);
 
   useEffect(() => {
     const fetchPageData = async () => {
@@ -103,10 +105,12 @@ export default function ShopDetails() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product._id} product={product} onOpenGallery={setGalleryProduct} />
           ))}
         </div>
       )}
+
+      <ProductGalleryModal open={Boolean(galleryProduct)} product={galleryProduct} onClose={() => setGalleryProduct(null)} />
     </PageTransition>
   );
 }
