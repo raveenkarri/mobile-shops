@@ -23,7 +23,8 @@ export const addProduct = async (req, res) => {
 
 export const getShopProducts = async (req, res) => {
   const { shopId } = req.params;
-  const { page = 1, limit = 20 } = req.query;
+  const page = Number(req.query.page || 1);
+  const limit = Number(req.query.limit || 20);
   
   const products = await Product.find({ shopId })
     .limit(limit * 1)
@@ -32,6 +33,29 @@ export const getShopProducts = async (req, res) => {
   const total = await Product.countDocuments({ shopId });
   
   res.json({
+    products,
+    totalPages: Math.ceil(total / limit),
+    currentPage: page,
+  });
+};
+
+export const getMyProducts = async (req, res) => {
+  const page = Number(req.query.page || 1);
+  const limit = Number(req.query.limit || 20);
+  const shop = await Shop.findOne({ ownerId: req.user._id });
+
+  if (!shop) {
+    return res.status(404).json({ message: 'No shop found for this owner' });
+  }
+
+  const products = await Product.find({ shopId: shop._id })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ createdAt: -1 });
+
+  const total = await Product.countDocuments({ shopId: shop._id });
+
+  return res.json({
     products,
     totalPages: Math.ceil(total / limit),
     currentPage: page,

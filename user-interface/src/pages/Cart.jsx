@@ -1,84 +1,93 @@
-import { useCartStore } from '../store/cartStore';
-import { Trash2, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { ArrowLeft, Trash2 } from "lucide-react";
+import { useCartStore } from "../store/cartStore";
+import EmptyState from "../components/ui/EmptyState";
+import PageTransition from "../components/ui/PageTransition";
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
-  
+
   if (items.length === 0) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-        <Link to="/" className="text-blue-600 hover:underline">Continue Shopping</Link>
-      </div>
+      <EmptyState
+        title="Your cart is empty"
+        description="Add products from shops to start checkout."
+        action={
+          <Link to="/" className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
+            Continue shopping
+          </Link>
+        }
+      />
     );
   }
-  
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Shopping Cart</h1>
-        <button onClick={clearCart} className="text-red-500 hover:text-red-600">
-          Clear Cart
+    <PageTransition className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h1 className="text-2xl font-bold text-slate-900">Shopping Cart</h1>
+        <button onClick={clearCart} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50">
+          Clear cart
         </button>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
+
+      <div className="grid gap-6 lg:grid-cols-[1.7fr,1fr]">
+        <div className="space-y-4">
           {items.map((item) => (
-            <div key={item.product._id} className="bg-white rounded-xl shadow-md p-4 flex gap-4">
-              {item.product.images?.[0] && (
-                <img src={item.product.images[0]} alt={item.product.name} className="w-24 h-24 object-cover rounded" />
-              )}
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">{item.product.name}</h3>
-                <p className="text-blue-600">${item.product.price}</p>
-                <div className="flex items-center gap-3 mt-2">
+            <article key={item.product._id} className="flex gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              {item.product.images?.[0] ? (
+                <img src={item.product.images[0]} alt={item.product.name} className="h-24 w-24 rounded-xl object-cover" />
+              ) : null}
+
+              <div className="min-w-0 flex-1">
+                <h3 className="line-clamp-1 font-semibold text-slate-900">{item.product.name}</h3>
+                <p className="text-sm text-cyan-700">${Number(item.product.price).toFixed(2)}</p>
+                <div className="mt-3 flex items-center gap-2">
                   <select
                     value={item.quantity}
-                    onChange={(e) => updateQuantity(item.product._id, parseInt(e.target.value))}
-                    className="border rounded px-2 py-1"
+                    onChange={(event) => updateQuantity(item.product._id, Number(event.target.value))}
+                    className="rounded-lg border border-slate-200 px-2 py-1 text-sm"
                   >
-                    {[...Array(10).keys()].map(i => (
-                      <option key={i + 1} value={i + 1}>{i + 1}</option>
+                    {[...Array(10).keys()].map((i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
                     ))}
                   </select>
-                  <button onClick={() => removeItem(item.product._id)} className="text-red-500">
-                    <Trash2 size={18} />
+                  <button onClick={() => removeItem(item.product._id)} className="text-rose-600 hover:text-rose-500">
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="font-bold">${(item.product.price * item.quantity).toFixed(2)}</p>
-              </div>
-            </div>
+
+              <p className="text-sm font-semibold text-slate-700">${(item.product.price * item.quantity).toFixed(2)}</p>
+            </article>
           ))}
         </div>
-        
-        <div className="bg-white rounded-xl shadow-md p-6 h-fit">
-          <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-          <div className="space-y-2 mb-4">
+
+        <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900">Order Summary</h2>
+          <div className="mt-4 space-y-2 text-sm text-slate-600">
             {items.map((item) => (
-              <div key={item.product._id} className="flex justify-between text-sm">
-                <span>{item.product.name} x{item.quantity}</span>
+              <div key={item.product._id} className="flex justify-between gap-3">
+                <span className="line-clamp-1">{item.product.name} x{item.quantity}</span>
                 <span>${(item.product.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
-          <div className="border-t pt-4 mb-4">
-            <div className="flex justify-between text-lg font-bold">
+          <div className="mt-4 border-t border-slate-200 pt-4 text-lg font-bold text-slate-900">
+            <div className="flex justify-between">
               <span>Total</span>
               <span>${getTotal().toFixed(2)}</span>
             </div>
           </div>
-          <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
-            Proceed to Checkout
+          <button className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500">
+            Proceed to checkout
           </button>
-          <Link to="/" className="block text-center mt-4 text-blue-600 hover:underline flex items-center justify-center gap-1">
-            <ArrowLeft size={16} /> Continue Shopping
+          <Link to="/" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-cyan-700 hover:text-cyan-600">
+            <ArrowLeft size={14} /> Continue shopping
           </Link>
-        </div>
+        </aside>
       </div>
-    </div>
+    </PageTransition>
   );
 }

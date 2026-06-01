@@ -3,10 +3,19 @@ import User from '../models/User.js';
 import Chat from '../models/Chat.js';
 import Message from '../models/Message.js';
 
+const getTokenFromCookie = (cookieHeader) => {
+  if (!cookieHeader) return null;
+  const tokenCookie = cookieHeader
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith('token='));
+  return tokenCookie ? decodeURIComponent(tokenCookie.split('=')[1]) : null;
+};
+
 export const setupSocket = (io) => {
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
+      const token = socket.handshake.auth.token || getTokenFromCookie(socket.handshake.headers.cookie);
       if (!token) return next(new Error('Authentication error'));
       
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

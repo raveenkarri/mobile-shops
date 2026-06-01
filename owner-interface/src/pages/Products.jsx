@@ -1,91 +1,145 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import ProductForm from '../components/ProductForm';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
+import ProductForm from "../components/ProductForm";
+import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
+import PageTransition from "../components/ui/PageTransition";
+import Skeleton from "../components/ui/Skeleton";
+import apiClient from "../lib/apiClient";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     fetchProducts();
   }, []);
-  
+
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/products/shop/my');
+      const { data } = await apiClient.get("/products/shop/my");
       setProducts(data.products || []);
-    } catch (error) {
-      toast.error('Failed to load products');
+    } catch {
+      toast.error("Failed to load products");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure?')) return;
+    if (!window.confirm("Delete this product?")) return;
+
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
-      toast.success('Product deleted');
+      await apiClient.delete(`/products/${id}`);
+      toast.success("Product deleted");
       fetchProducts();
-    } catch (error) {
-      toast.error('Delete failed');
+    } catch {
+      toast.error("Unable to delete product");
     }
   };
-  
-  if (loading) return <div className="text-center py-10">Loading...</div>;
-  
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Products</h1>
-        <button
-          onClick={() => { setEditingProduct(null); setShowForm(true); }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+    <PageTransition className="space-y-6">
+      <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Product Catalog</h2>
+          <p className="mt-1 text-sm text-slate-600">Manage pricing, inventory and media from one place.</p>
+        </div>
+        <Button
+          onClick={() => {
+            setEditingProduct(null);
+            setShowForm(true);
+          }}
         >
-          Add Product
-        </button>
+          <Plus size={16} />
+          New Product
+        </Button>
       </div>
-      
-      {showForm && (
+
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-72" />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <EmptyState
+          title="No products yet"
+          description="Start adding products to appear in your storefront."
+          action={
+            <Button
+              onClick={() => {
+                setEditingProduct(null);
+                setShowForm(true);
+              }}
+            >
+              Add your first product
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {products.map((product, index) => (
+            <motion.article
+              key={product._id}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04 }}
+              whileHover={{ y: -4 }}
+              className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+            >
+              <div className="relative h-48 bg-slate-100">
+                {product.images?.[0] ? (
+                  <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="grid h-full place-items-center text-sm text-slate-500">No preview image</div>
+                )}
+              </div>
+              <div className="space-y-2 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-600">
+                    {product.category}
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-cyan-700">${Number(product.price).toFixed(2)}</p>
+                <p className="text-sm text-slate-500">Stock: {product.stock}</p>
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    variant="subtle"
+                    className="flex-1"
+                    onClick={() => {
+                      setEditingProduct(product);
+                      setShowForm(true);
+                    }}
+                  >
+                    <Pencil size={14} /> Edit
+                  </Button>
+                  <Button variant="danger" className="flex-1" onClick={() => handleDelete(product._id)}>
+                    <Trash2 size={14} /> Delete
+                  </Button>
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      )}
+
+      {showForm ? (
         <ProductForm
           product={editingProduct}
           onClose={() => setShowForm(false)}
-          onSuccess={() => { fetchProducts(); setShowForm(false); }}
+          onSuccess={() => {
+            setShowForm(false);
+            fetchProducts();
+          }}
         />
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div key={product._id} className="bg-white rounded-xl shadow-md overflow-hidden">
-            {product.images?.[0] && (
-              <img src={product.images[0]} alt={product.name} className="w-full h-48 object-cover" />
-            )}
-            <div className="p-4">
-              <h3 className="font-semibold text-lg">{product.name}</h3>
-              <p className="text-gray-600">{product.category}</p>
-              <p className="text-2xl font-bold text-blue-600 mt-2">${product.price}</p>
-              <p className="text-sm text-gray-500">Stock: {product.stock}</p>
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => { setEditingProduct(product); setShowForm(true); }}
-                  className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(product._id)}
-                  className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      ) : null}
+    </PageTransition>
   );
 }

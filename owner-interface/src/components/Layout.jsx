@@ -1,32 +1,43 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import Sidebar from './Sidebar';
+import { Outlet, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import Sidebar from "./Sidebar";
+import Button from "./ui/Button";
+import { LogOut } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  
+
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate("/login");
   };
-  
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top,_#cffafe_0%,_#f8fafc_35%,_#f8fafc_100%)] text-slate-900">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">Owner Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600">{user?.name}</span>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+      <div className="flex min-h-screen flex-1 flex-col">
+        <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 px-6 py-4 backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Control Panel</p>
+              <h1 className="text-xl font-bold">Welcome, {user?.name}</h1>
+            </div>
+            <Button variant="subtle" onClick={handleLogout} className="border border-slate-200 bg-white">
+              <LogOut size={16} />
               Logout
-            </button>
+            </Button>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-6">
+        <motion.main
+          className="flex-1 p-4 md:p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.22 }}
+        >
           <Outlet />
-        </main>
+        </motion.main>
       </div>
     </div>
   );

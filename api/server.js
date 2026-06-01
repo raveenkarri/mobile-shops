@@ -10,6 +10,7 @@ import shopRoutes from "./routes/shopRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import bannerRoutes from "./routes/bannerRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { setupSocket } from "./sockets/socketHandler.js";
 
@@ -40,6 +41,7 @@ app.use("/api/shops", shopRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/banners", bannerRoutes);
 
 // Socket.io
 setupSocket(io);

@@ -1,46 +1,47 @@
-import { create } from 'zustand';
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-const API_URL = 'http://localhost:5000/api';
+import { create } from "zustand";
+import apiClient from "../lib/apiClient";
 
 export const useAuthStore = create((set) => ({
   user: null,
   isLoading: true,
-  
+
   login: async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const { data } = await apiClient.post("/auth/login", { email, password });
       set({ user: data });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message };
+      return {
+        success: false,
+        error: error.response?.data?.message || "Unable to login",
+      };
     }
   },
-  
+
   register: async (userData) => {
     try {
-      const { data } = await axios.post(`${API_URL}/auth/register`, userData);
+      const { data } = await apiClient.post("/auth/register", userData);
       set({ user: data });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message };
+      return {
+        success: false,
+        error: error.response?.data?.message || "Unable to register",
+      };
     }
   },
-  
+
   logout: async () => {
-    await axios.post(`${API_URL}/auth/logout`);
+    await apiClient.post("/auth/logout");
     set({ user: null });
   },
-  
+
   checkAuth: async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/auth/me`);
+      const { data } = await apiClient.get("/auth/me");
       set({ user: data, isLoading: false });
-    } catch (error) {
+    } catch {
       set({ user: null, isLoading: false });
     }
   },
 }));
-
-useAuthStore.getState().checkAuth();

@@ -1,97 +1,119 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import Button from "../components/ui/Button";
+import PageTransition from "../components/ui/PageTransition";
+import Skeleton from "../components/ui/Skeleton";
+import apiClient from "../lib/apiClient";
 
 export default function ShopSetup() {
   const [shop, setShop] = useState(null);
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    shopName: '',
-    location: '',
-    description: '',
+    shopName: "",
+    location: "",
+    description: "",
   });
-  const [loading, setLoading] = useState(false);
-  
+
   useEffect(() => {
+    const fetchMyShop = async () => {
+      try {
+        const { data } = await apiClient.get("/shops/my-shop");
+        setShop(data);
+        setFormData({
+          shopName: data.shopName,
+          location: data.location,
+          description: data.description || "",
+        });
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          toast.error("Failed to load shop settings");
+        }
+      } finally {
+        setLoadingPage(false);
+      }
+    };
+
     fetchMyShop();
   }, []);
-  
-  const fetchMyShop = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:5000/api/shops/my-shop');
-      setShop(data);
-      setFormData({
-        shopName: data.shopName,
-        location: data.location,
-        description: data.description || '',
-      });
-    } catch (error) {
-      if (error.response?.status !== 404) {
-        toast.error('Failed to load shop');
-      }
-    }
-  };
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+
     try {
       if (shop) {
-        await axios.put('http://localhost:5000/api/shops/my-shop', formData);
-        toast.success('Shop updated successfully');
+        const { data } = await apiClient.put("/shops/my-shop", formData);
+        setShop(data);
+        toast.success("Shop updated");
       } else {
-        await axios.post('http://localhost:5000/api/shops', formData);
-        toast.success('Shop created successfully');
-        fetchMyShop();
+        const { data } = await apiClient.post("/shops", formData);
+        setShop(data);
+        toast.success("Shop created");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error saving shop');
+      toast.error(error.response?.data?.message || "Could not save shop");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
-  
+
+  if (loadingPage) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-12 w-72" />
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">{shop ? 'Edit Shop' : 'Create Your Shop'}</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md p-6 space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Shop Name</label>
-          <input
-            type="text"
-            required
-            value={formData.shopName}
-            onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Location / Area</label>
-          <input
-            type="text"
-            required
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., Downtown, City Center"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-          <textarea
-            rows="4"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Saving...' : shop ? 'Update Shop' : 'Create Shop'}
-        </button>
-      </form>
-    </div>
+    <PageTransition className="mx-auto max-w-3xl">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="text-2xl font-bold text-slate-900">{shop ? "Edit your shop" : "Create your shop"}</h2>
+        <p className="mt-1 text-sm text-slate-600">Use precise location and description details to improve local discovery.</p>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Shop Name</label>
+            <input
+              type="text"
+              required
+              value={formData.shopName}
+              onChange={(event) => setFormData((prev) => ({ ...prev, shopName: event.target.value }))}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+              placeholder="Galaxy Mobile Hub"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Location / Area</label>
+            <input
+              type="text"
+              required
+              value={formData.location}
+              onChange={(event) => setFormData((prev) => ({ ...prev, location: event.target.value }))}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+              placeholder="Downtown, Mumbai"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Description</label>
+            <textarea
+              rows="5"
+              value={formData.description}
+              onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-cyan-400 focus:outline-none"
+              placeholder="What makes your shop unique?"
+            />
+          </div>
+
+          <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+            {saving ? "Saving..." : shop ? "Update Shop" : "Create Shop"}
+          </Button>
+        </form>
+      </div>
+    </PageTransition>
   );
 }
